@@ -56,10 +56,12 @@ def get_cond_timepoints(sub, task, conds, TR):
 				duration_TR = int(math.ceil(duration/TR))
 				last_idx = first_idx + duration_TR # inclusive! we want this index as well
 				print (onset, onset/TR, duration, duration_TR, first_idx, last_idx)
-				idxs = range(first_idx, last_idx+1)
 				# NOTE: I believe we should account for BOLD lag by ignoring the first n timepoints of each event
 				# as a first pass/prototype this is not implemented yet
+				# some tasks cause collisions due to their event length (e.g. WM), so this correction at least is necessary:
+				first_idx = first_idx + 1
 				# make sure the range is correct
+				idxs = range(first_idx, last_idx+1)
 				assert(min(idxs)==first_idx and max(idxs)==last_idx)
 				cond_tps.update(idxs)
 
