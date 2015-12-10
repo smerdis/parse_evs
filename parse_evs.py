@@ -91,6 +91,12 @@ for task in tasks:
 	elif task == 'LANGUAGE':
 		conds['story'] = ['story.txt']
 		conds['math'] = ['math.txt']
+	elif task == 'SOCIAL':
+		conds['social'] = ['mental.txt']
+		conds['random'] = ['rnd.txt']
+	elif task == 'WM':
+		conds['0bk'] = ['0bk_body.txt','0bk_faces.txt','0bk_places.txt','0bk_tools.txt']
+		conds['2bk'] = ['2bk_body.txt','2bk_faces.txt','2bk_places.txt','2bk_tools.txt']
 	else:
 		continue # do not call get_cond_timepoints unless conditions are specified
 	
