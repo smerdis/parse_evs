@@ -1,6 +1,5 @@
 #!/home/despoB/mb3152/anaconda/bin/python
 import os, sys, math
-import numpy as np
 
 # can be called for any task
 def get_taskstr(task):
