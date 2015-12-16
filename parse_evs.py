@@ -1,3 +1,4 @@
+#!/usr/local/anaconda/bin/python
 import os, sys, math
 
 # can be called for any task
@@ -38,7 +39,6 @@ def get_cond_timepoints(sub, task, conds, TR, discard_initial_TRs=0):
 	evfile_list = set(os.listdir(ev_dir))
 	epi_file = nib.load(get_epifile(sub, task))
 	n_tps = epi_file.shape[-1]
-	print '%s, %s'%(epi_file,epi_file.shape)	
 	cond_timepoints = dict()
 
 	# check that all the filenames given in conds exist in the dir
@@ -68,7 +68,6 @@ def get_cond_timepoints(sub, task, conds, TR, discard_initial_TRs=0):
 				first_idx = first_idx + 1 + discard_initial_TRs
 				# make sure the range is correct
 				idxs = range(first_idx, last_idx+1)
-				print idxs
 				assert(min(idxs)==first_idx and max(idxs)==last_idx)
 				cond_tps.update(idxs)
 
@@ -82,39 +81,44 @@ def get_cond_timepoints(sub, task, conds, TR, discard_initial_TRs=0):
 		cond_timepoints= {condition: sorted(timepoints) for condition, timepoints in cond_timepoints.items()}
 		return cond_timepoints
 
-if __name__ == "__main__":
-
-	# if run as a script, process the hcp subjects using brain_graphs
+def get_cond_timeseries(sub, task):
 	import numpy as np
-	# from brain_graphs import load_subject_time_series, time_series_to_matrix
-	import brain_graphs as bg
+	try:
+		import brain_graphs as bg
+	except ImportError:
+		sys.path.append('/home/despoB/arjun/brain_graphs')
+		import brain_graphs as bg
 
-	tasks = ['EMOTION', 'GAMBLING', 'LANGUAGE', 'MOTOR', 'RELATIONAL', 'SOCIAL', 'WM']
 	TR = 0.72 # seconds; figure out where to embed or obtain this knowledge. should be correct for HCP.
-	subjects = ['987983']
-	for sub in subjects:
-		task_cond_timeseries = dict()
-		for task in tasks:
-			# per-task setup; kinda unpythonic, but allows explicit setup of conditions
-			conds = dict()
-			if task == 'EMOTION':
-				conds['fear'] = ['fear.txt'] # names of EV files that should be grouped into this condition
-				conds['neut'] = ['neut.txt']
-			elif task == 'LANGUAGE':
-				conds['story'] = ['story.txt']
-				conds['math'] = ['math.txt']
-			elif task == 'SOCIAL':
-				conds['social'] = ['mental.txt']
-				conds['random'] = ['rnd.txt']
-			elif task == 'WM':
-				conds['0bk'] = ['0bk_body.txt','0bk_faces.txt','0bk_places.txt','0bk_tools.txt']
-				conds['2bk'] = ['2bk_body.txt','2bk_faces.txt','2bk_places.txt','2bk_tools.txt']
-			else:
-				continue # do not call get_cond_timepoints unless conditions are specified
-			
-			cond_tps = get_cond_timepoints(sub, task, conds, TR)
-			epi_fn = get_epifile(sub, task)
-			print ('Task {t} ({f})'.format(t=task,f=epi_fn))
-			for cond, tps in cond_tps.items():
-				cond_ts = bg.load_subject_time_series(epi_fn, incl_timepoints=tps)
-				print '{c}: {tp}, {sh}'.format(c=cond,tp=tps,sh=cond_ts.shape)
+	parcel_path = '/home/despoB/mb3152/modularity/atlases/power_template.nii'
+
+
+	# per-task setup; kinda unpythonic, but allows explicit setup of conditions
+	conds = dict()
+	if task == 'EMOTION':
+		conds['fear'] = ['fear.txt'] # names of EV files that should be grouped into this condition
+		conds['neut'] = ['neut.txt']
+	elif task == 'LANGUAGE':
+		conds['story'] = ['story.txt']
+		conds['math'] = ['math.txt']
+	elif task == 'SOCIAL':
+		conds['social'] = ['mental.txt']
+		conds['random'] = ['rnd.txt']
+	elif task == 'WM':
+		conds['0bk'] = ['0bk_body.txt','0bk_faces.txt','0bk_places.txt','0bk_tools.txt']
+		conds['2bk'] = ['2bk_body.txt','2bk_faces.txt','2bk_places.txt','2bk_tools.txt']
+	else:
+		return # do not call get_cond_timepoints unless conditions are specified
+
+	cond_tps = get_cond_timepoints(sub, task, conds, TR)
+	epi_fn = get_epifile(sub, task)
+	print ('Task {t} ({f})'.format(t=task,f=epi_fn))
+	for cond, tps in cond_tps.items():
+		outfile = '{s}-{t}-{c}'.format(s=sub,t=task,c=cond)
+		cond_ts = bg.load_subject_time_series(epi_fn, incl_timepoints=tps)
+		bg.time_series_to_matrix(cond_ts, parcel_path, out_file=outfile)
+
+if __name__ == "__main__":
+	sub = str(sys.argv[1])
+	task=sys.argv[2]
+	get_cond_timeseries(sub, task)
