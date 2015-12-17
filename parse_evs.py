@@ -104,6 +104,16 @@ def get_cond_timeseries(sub, task):
 	elif task == 'SOCIAL':
 		conds['social'] = ['mental.txt']
 		conds['random'] = ['rnd.txt']
+	elif task == 'RELATIONAL':
+		conds['relation'] = ['relation.txt']
+		conds['match'] = ['match.txt']
+	elif task == 'GAMBLING':
+		conds['win'] = ['win.txt'] # MOSTLY win blocks...
+		conds['loss'] = ['loss.txt']
+	elif task == 'MOTOR': # not totally sure of these conditions
+		conds['feet'] = ['lf.txt','rf.txt']
+		conds['hands'] = ['lh.txt','rh.txt']
+		conds['tongue'] = ['tongue.txt'] #might not have enough tps
 	elif task == 'WM':
 		conds['0bk'] = ['0bk_body.txt','0bk_faces.txt','0bk_places.txt','0bk_tools.txt']
 		conds['2bk'] = ['2bk_body.txt','2bk_faces.txt','2bk_places.txt','2bk_tools.txt']
