@@ -21,7 +21,11 @@ def get_epifile(sub, task):
 	'''Return the directory which contains the epi files for a specified subject and task. Implementation logic goes here.'''
 	task_str = get_taskstr(task)
 	epi_dir = get_epidir(sub, task)
-	return os.path.join(epi_dir, '%s.nii.gz'%task_str)
+	epi_fn = os.path.join(epi_dir, '%s_reg.nii.gz'%task_str)
+	if os.path.exists(epi_fn):
+		return epi_fn
+	else:
+		return None
 
 def get_cond_timepoints(sub, task, conds, TR, discard_initial_TRs=0):
 	'''Reads the onset/EV files for the specified subject and task, and splits them according to a dict of conditions.
@@ -37,7 +41,9 @@ def get_cond_timepoints(sub, task, conds, TR, discard_initial_TRs=0):
 
 	ev_dir = get_evdir(sub, task)
 	evfile_list = set(os.listdir(ev_dir))
-	epi_file = nib.load(get_epifile(sub, task))
+	epi_fn = get_epifile(sub, task)
+	if not epi_fn: return None
+	epi_file = nib.load(epi_fn)
 	n_tps = epi_file.shape[-1]
 	cond_timepoints = dict()
 
